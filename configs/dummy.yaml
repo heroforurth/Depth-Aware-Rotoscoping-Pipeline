@@ -1,0 +1,5 @@
+# Synthetic shot made by `python -m common.make_dummy_shot`.
+# It already has frames, mask, alpha and depth_raw, so only the
+# CPU stages run. Use it to test alignment, fusion and EXR without a GPU.
+shot: dummy
+stages: [align, fuse, exr]

@@ -1,0 +1,18 @@
+# Python 3.11. Pinned versions; do not upgrade torch/CUDA without asking.
+#
+# PyTorch is installed separately because the wheel depends on your GPU:
+#   pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cu130
+# (RTX 50-series / Blackwell needs CUDA 12.8 or newer builds.)
+
+numpy==2.4.6
+opencv-python==5.0.0.93
+pyyaml==6.0.3
+scipy==1.17.1
+tqdm==4.70.1
+imageio-ffmpeg==0.6.0
+OpenEXR==3.5.2
+pillow==12.3.0
+
+# Model repos (SAM 2, MatAnyone, Video Depth Anything) are cloned into
+# third_party/ by scripts/setup_models.ps1 in Phase 1; their extra
+# requirements are added here once tested.

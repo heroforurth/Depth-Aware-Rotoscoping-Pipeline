@@ -1,0 +1,56 @@
+# Default settings for every shot. A shot config (configs/<shot>.yaml)
+# only needs to override what is different. Merge is recursive.
+
+shot: null                 # required in the shot config
+data_root: data            # outputs go to data/<shot>/...
+input_video: null          # path to the source video (not needed if frames/ already exists)
+seed: 0
+
+# Stages run in this order. Remove one to skip it (its output must already exist).
+stages: [extract, segment, matte, depth, align, fuse, exr]
+
+frames:
+  start_time: null         # seconds into the video, e.g. 12.5
+  max_frames: 100          # develop on ~100 frames first (CLAUDE.md rule)
+  resize_height: null      # e.g. 1080 to downscale a 4K source
+  overwrite: false
+
+segmentation:              # [A] SAM 2 -> mask/
+  checkpoint: facebook/sam2.1-hiera-small
+  # One entry per prompted frame. Add a second entry on a later frame if the object is lost.
+  # points are [x, y] in pixels of the ORIGINAL frame; labels: 1 = object, 0 = background.
+  prompts: []
+
+matting:                   # [A] MatAnyone -> alpha/
+  mask_frame: 1            # which mask/ frame MatAnyone starts from
+  warmup: 10               # MatAnyone first-frame refinement iterations
+
+depth:                     # [B] -> depth_raw/
+  model: vda               # vda = Video Depth Anything (main), dav2 = Depth Anything V2-Small (baseline)
+  encoder: vits            # vits = Small (Apache 2.0). Do not use vitb/vitl for commercial work.
+  input_size: 518          # model input short side; depth is upsampled back to frame size
+  fp16: true
+  out_subdir: depth_raw    # baseline runs can write to depth_raw_dav2 for comparison
+
+align:                     # [B] depth_raw/ -> depth/
+  mode: global             # global = one scale/shift for the whole shot; window = sliding window
+  window: 30               # frames per window when mode = window
+  reference: median        # which frame/target the others are aligned to
+
+fusion:                    # [C] -> depth_final/, stats.json
+  alpha_threshold: 0.5     # stats only where alpha > this (design decision 2)
+  percentiles: [2, 98]
+  refine:
+    enabled: true
+    band_px: 12            # refine only within this distance of the matte edge
+    diameter: 9
+    sigma_color: 20.0      # in 0-255 RGB units
+    sigma_space: 5.0
+
+exr:                       # [D] -> exr/
+  # Z convention written to the file (design decision 4: converted ONCE, here).
+  #   depth     : larger = farther (Blender / most compositing), Z = 1 / disparity
+  #   disparity : larger = closer (native Depth Anything)
+  z_mode: depth
+  compression: zip
+  linearize_rgb: true      # convert sRGB PNG -> linear for EXR (VFX convention)

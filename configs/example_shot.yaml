@@ -1,0 +1,17 @@
+# Template for a real shot. Copy to configs/<shot>.yaml and edit.
+shot: example_shot
+input_video: videos/example_shot.mp4
+
+frames:
+  max_frames: 100
+  resize_height: 1080
+
+segmentation:
+  prompts:
+    - frame: 1
+      points: [[960, 540]]      # click on the object (x, y)
+      labels: [1]
+      box: null                 # or [x0, y0, x1, y1]
+    # - frame: 60               # re-prompt if SAM 2 loses the object
+    #   points: [[900, 500]]
+    #   labels: [1]
