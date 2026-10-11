@@ -7,6 +7,6 @@ stages: [segment, matte, depth, align, fuse, exr]
 segmentation:
   prompts:
     - frame: 1
-      points: [[680, 380], [600, 220], [560, 780]]      # face, hair, jacket
-      labels: [1, 1, 1]
+      points: [[680, 380], [600, 220], [560, 780], [260, 700], [270, 880]]  # face, hair, jacket, left sleeve x2
+      labels: [1, 1, 1, 1, 1]
       box: null

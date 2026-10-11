@@ -24,6 +24,10 @@ segmentation:              # [A] SAM 2 -> mask/
 matting:                   # [A] MatAnyone -> alpha/
   mask_frame: 1            # which mask/ frame MatAnyone starts from
   warmup: 10               # MatAnyone first-frame refinement iterations
+  erode: 10                # px: mask shrink -> sure foreground
+  dilate: 10               # px: mask grow -> everything between is "unknown" edge
+  max_size: 720            # short side for MatAnyone; -1 = full res. On 8 GB, full 1080p spills
+                           # out of VRAM (8.6 s/frame) vs 0.17 s/frame at 720, alpha diff MAD 0.0015
 
 depth:                     # [B] -> depth_raw/
   model: vda               # vda = Video Depth Anything (main), dav2 = Depth Anything V2-Small (baseline)
@@ -33,9 +37,11 @@ depth:                     # [B] -> depth_raw/
   out_subdir: depth_raw    # baseline runs can write to depth_raw_dav2 for comparison
 
 align:                     # [B] depth_raw/ -> depth/
-  mode: global             # global = one scale/shift for the whole shot; window = sliding window
-  window: 30               # frames per window when mode = window
-  reference: median        # which frame/target the others are aligned to
+  # global    : one scale/shift for the whole shot (enough for Video Depth Anything)
+  # per_frame : first fit every frame to the shot median, then global (for flickering per-frame models)
+  # window    : like per_frame but the reference is the median of +-window/2 frames (camera moves)
+  mode: global
+  window: 30
 
 fusion:                    # [C] -> depth_final/, stats.json
   alpha_threshold: 0.5     # stats only where alpha > this (design decision 2)
@@ -43,14 +49,20 @@ fusion:                    # [C] -> depth_final/, stats.json
   refine:
     enabled: true
     band_px: 12            # refine only within this distance of the matte edge
-    diameter: 9
-    sigma_color: 20.0      # in 0-255 RGB units
-    sigma_space: 5.0
+    diameter: 9            # filter window (pixels)
+    sigma_color: 20.0      # in 0-255 RGB units: smaller = stops more strongly at colour edges
+    sigma_space: 5.0       # pixels
+    alpha_weight: 2.0      # how strongly the matte edge also blocks smoothing
+    iterations: 2
 
 exr:                       # [D] -> exr/
   # Z convention written to the file (design decision 4: converted ONCE, here).
   #   depth     : larger = farther (Blender / most compositing), Z = 1 / disparity
   #   disparity : larger = closer (native Depth Anything)
   z_mode: depth
-  compression: zip
+  z_near: 1.0              # z_mode=depth: closest part of the shot ~ this distance
+  z_far: 10.0              #               farthest part ~ this distance (relative units, not metres)
+  compression: zip         # zip | piz | none
   linearize_rgb: true      # convert sRGB PNG -> linear for EXR (VFX convention)
+  use_source_exr: true     # if data/<shot>/source_exr/ exists (Tears of Steel), copy its linear RGB
+  premultiply: false       # false: RGB = full plate, A = matte (use Premult in Nuke)

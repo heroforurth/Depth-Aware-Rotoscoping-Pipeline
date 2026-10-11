@@ -14,6 +14,7 @@ alpha + depth + frames -> [C] stats + edge refinement    -> depth_final/, stats.
 ```powershell
 pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cu130
 pip install -r requirements.txt
+powershell -ExecutionPolicy Bypass -File scripts/setup_models.ps1   # model code (pinned) + weights, ~520 MB
 ```
 On Windows 11, **Smart App Control must be off**, or it blocks the PyTorch and OpenEXR DLLs
 (`WinError 4551`). The alternative is WSL2 or Colab.
@@ -56,11 +57,33 @@ All file I/O goes through [common/io.py](common/io.py). Frames are numbered from
 ## Modules
 | Folder | Stage | README |
 |---|---|---|
-| `common/` | config, I/O, frame extraction, validator, dummy data | this file |
-| `segmentation/` | SAM 2 | Phase 1 |
-| `matting/` | MatAnyone | Phase 1 |
-| `depth/` | Video Depth Anything, DA V2-Small baseline | Phase 1 |
-| `alignment/` | global scale/shift | Phase 1 |
-| `fusion/` | alpha-aware stats, edge-aware refinement | Phase 1 |
-| `exr_writer/` | EXR output | Phase 1 |
+| `common/` | config, I/O, frame extraction, validator, dummy data, previews, Tears of Steel download | this file |
+| `segmentation/` | SAM 2 | [README](segmentation/README.md) |
+| `matting/` | MatAnyone | [README](matting/README.md) |
+| `depth/` | Video Depth Anything, DA V2-Small baseline | [README](depth/README.md) |
+| `alignment/` | global / per-frame scale and shift | [README](alignment/README.md) |
+| `fusion/` | alpha-aware stats, edge-aware refinement | [README](fusion/README.md) |
+| `exr_writer/` | EXR output | [README](exr_writer/README.md) |
 | `evaluation/` | metrics, report | Phase 3 |
+
+## Speed (RTX 5060 Laptop 8 GB, 1920×1012, 100 frames)
+| Stage | s/frame | GPU peak |
+|---|---|---|
+| SAM 2.1 Small | 0.13 | — |
+| MatAnyone (720 px) | 0.17 | 1.5 GB |
+| Video Depth Anything Small | 0.40 | 7.5 GB |
+| DA V2 Small (baseline) | 0.10 | — |
+| Align | 0.03 | CPU |
+| Fuse (refine + stats) | 0.28 | GPU |
+| EXR write | 0.26 | CPU |
+| **Total** | **≈ 1.3** | |
+
+## Test footage
+`python -m common.get_tears_of_steel --tos_shot 01_2a --start 100 --count 100` downloads original
+camera frames from *Tears of Steel* (CC-BY 3.0, **(CC) Blender Foundation | mango.blender.org**).
+The actors keep their portrait rights, so use it for tech demos only, not ads.
+Shots in `configs/`: `tos_01_2a` (outdoor bridge), `tos_04_2d` (indoor, several actors), `tos_08_3a` (green screen, hair).
+
+## Licences of the models
+SAM 2.1, Video Depth Anything Small and Depth Anything V2 Small are Apache 2.0.
+**MatAnyone is NTU S-Lab License 1.0 (non-commercial).**

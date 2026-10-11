@@ -2,6 +2,7 @@
 
     python run_pipeline.py --config configs/<shot>.yaml
     python run_pipeline.py --config configs/<shot>.yaml --stages depth align   # run only some stages
+    python run_pipeline.py --config configs/<shot>.yaml --stages depth --set depth.model=dav2 depth.out_subdir=depth_raw_dav2
 
 Each stage is a function `run(cfg, paths)` in its own module folder. Stages
 are imported only when they run, so the CPU stages (align, fuse, exr) work
@@ -11,6 +12,8 @@ import argparse
 import importlib
 import json
 import time
+
+import yaml
 
 from common.config import load_config, set_seed
 from common.io import ShotPaths
@@ -36,9 +39,18 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", required=True)
     ap.add_argument("--stages", nargs="*", help="override the stage list in the config")
+    ap.add_argument("--set", nargs="*", default=[], metavar="KEY=VALUE",
+                    help="override config values, e.g. --set depth.model=dav2 depth.out_subdir=depth_raw_dav2")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
+    for item in args.set:
+        key, value = item.split("=", 1)
+        *parents, last = key.split(".")
+        node = cfg
+        for p in parents:
+            node = node[p]
+        node[last] = yaml.safe_load(value)   # "720" -> 720, "true" -> True, "abc" -> "abc"
     set_seed(cfg["seed"])
     paths = ShotPaths.from_config(cfg)
     paths.make_dirs()

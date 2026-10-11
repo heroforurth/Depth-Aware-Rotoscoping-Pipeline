@@ -6,6 +6,6 @@ stages: [segment, matte, depth, align, fuse, exr]
 segmentation:
   prompts:
     - frame: 1
-      points: [[960, 280], [880, 600], [420, 600]]      # face, jacket, man in red = background
-      labels: [1, 1, 0]
+      points: [[960, 280], [880, 600], [720, 700], [730, 850], [420, 600]]  # face, jacket, left sleeve x2, man in red = background
+      labels: [1, 1, 1, 1, 0]
       box: null

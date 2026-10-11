@@ -3,7 +3,12 @@
 # PyTorch is installed separately because the wheel depends on your GPU:
 #   pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cu130
 # (RTX 50-series / Blackwell needs CUDA 12.8 or newer builds.)
+#
+# Model code + weights: powershell -ExecutionPolicy Bypass -File scripts/setup_models.ps1
+# The model repos are NOT pip-installed (Video Depth Anything pins torch 2.1 /
+# numpy 1.24, which would break the GPU); common/third_party.py adds them to sys.path.
 
+# core
 numpy==2.4.6
 opencv-python==5.0.0.93
 pyyaml==6.0.3
@@ -13,6 +18,14 @@ imageio-ffmpeg==0.6.0
 OpenEXR==3.5.2
 pillow==12.3.0
 
-# Model repos (SAM 2, MatAnyone, Video Depth Anything) are cloned into
-# third_party/ by scripts/setup_models.ps1 in Phase 1; their extra
-# requirements are added here once tested.
+# needed by SAM 2 / MatAnyone / Video Depth Anything
+hydra-core==1.3.7
+omegaconf==2.3.1
+iopath==0.1.10
+einops==0.8.2
+easydict==1.13
+huggingface_hub==2.2.0
+GitPython==3.2.0
+imageio==2.38.1
+requests==2.34.2
+matplotlib==3.11.2
