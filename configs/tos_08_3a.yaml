@@ -1,0 +1,12 @@
+# Tears of Steel shot 08_3a, source frames 100-199 (CC-BY 3.0, Blender Foundation | mango.blender.org)
+# Green screen close-up, grey hair and beard: hardest matting case.
+# Green screen keying gives a near-ground-truth alpha to score MatAnyone (Phase 3).
+# Frames already made by: python -m common.get_tears_of_steel --tos_shot 08_3a --start 100 --count 100
+shot: tos_08_3a
+stages: [segment, matte, depth, align, fuse, exr]
+segmentation:
+  prompts:
+    - frame: 1
+      points: [[680, 380], [600, 220], [560, 780]]      # face, hair, jacket
+      labels: [1, 1, 1]
+      box: null

@@ -1,0 +1,11 @@
+# Tears of Steel shot 04_2d, source frames 100-199 (CC-BY 3.0, Blender Foundation | mango.blender.org)
+# Indoor set, several actors who overlap; a woman walks in. Target: grey-haired man (centre).
+# Frames already made by: python -m common.get_tears_of_steel --tos_shot 04_2d --start 100 --count 100
+shot: tos_04_2d
+stages: [segment, matte, depth, align, fuse, exr]
+segmentation:
+  prompts:
+    - frame: 1
+      points: [[960, 280], [880, 600], [420, 600]]      # face, jacket, man in red = background
+      labels: [1, 1, 0]
+      box: null
