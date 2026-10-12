@@ -33,10 +33,10 @@ import json
 import numpy as np
 from tqdm import tqdm
 
-from common.io import frame_name, list_indices, read_alpha, read_depth, write_depth
+from common.io import frame_name, list_indices, read_alpha, read_depth, read_rgb, write_depth
 from common.timing import timed
 
-SAMPLE_STEP = 4   # use every 4th pixel in x and y for fitting: 16x faster, same answer
+SAMPLE_STEP = 4   # use every 4th pixel in x and y for fitting (and flow): 16x faster, same answer
 
 
 def fit_scale_shift(src, dst, weight=None):
@@ -60,6 +60,37 @@ def robust_fit(src, dst, weight=None, iters=3, keep=0.8):
             break
         s, b = fit_scale_shift(src, dst, w2)
     return s, b
+
+
+def flow_chain_fit(paths, indices, small):
+    """`flow` mode: works with a moving camera and moving people.
+    Frame t is fitted to the ALREADY ALIGNED frame t-1, moved onto frame t's
+    pixels with optical flow. Flow follows the camera and the actors, so we
+    compare the same surface point in both frames. Only pixels where the flow
+    passes the forward/backward check are used."""
+    import cv2
+
+    from common.flow import reliable_flow, warp
+
+    h, w = small[indices[0]].shape
+    gray = {}
+    for i in indices:
+        g = cv2.cvtColor(read_rgb(paths.frames / frame_name(i, "png")), cv2.COLOR_RGB2GRAY)
+        gray[i] = cv2.resize(g, (w, h), interpolation=cv2.INTER_AREA)
+    sb = {indices[0]: (1.0, 0.0)}
+    prev = small[indices[0]]
+    for a, b in tqdm(list(zip(indices[:-1], indices[1:])), desc="align (flow)", leave=False):
+        flow_ba, ok = reliable_flow(gray[b], gray[a])        # where each pixel of b was in a
+        prev_on_b = warp(prev, flow_ba)
+        ok &= np.isfinite(prev_on_b)
+        if ok.sum() < 200:
+            print(f"[align] frame {b}: too few reliable flow pixels, keeping previous scale")
+            sb[b] = sb[a]
+        else:
+            s, sh = robust_fit(small[b][ok], prev_on_b[ok])
+            sb[b] = (s, sh) if s > 0 else sb[a]
+        prev = sb[b][0] * small[b] + sb[b][1]
+    return sb
 
 
 def run(cfg, paths):
@@ -103,8 +134,10 @@ def run(cfg, paths):
                         print(f"[align] frame {i}: bad fit (s={s:.3g}), kept rough normalisation")
                         continue
                     sb[i] = (s, b)
+        elif mode == "flow":
+            sb = flow_chain_fit(paths, indices, small)
         elif mode != "global":
-            raise ValueError(f"align.mode must be global, per_frame or window, not {mode!r}")
+            raise ValueError(f"align.mode must be global, per_frame, window or flow, not {mode!r}")
 
         # ---- step 2: ONE global scale/shift for the whole shot -> robust [0, 1] ----
         allv = np.concatenate([(sb[i][0] * small[i] + sb[i][1]).ravel() for i in indices])

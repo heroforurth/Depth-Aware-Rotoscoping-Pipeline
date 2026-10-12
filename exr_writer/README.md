@@ -43,4 +43,4 @@ In Nuke, add a Premult node to cut out the object. In Blender, set alpha to "Str
 (`blender` layout, exact depth values). Nuke is not installed here, so it hasn't been tested, but `standard` uses
 the plain `Z` channel name that Nuke maps to `depth.Z`.
 
-**4K (4096×2160):** 1.08 s/frame, about 60 MB/frame.
+**4K (4096×2160):** 1.08 s/frame, about 66 MB/frame.

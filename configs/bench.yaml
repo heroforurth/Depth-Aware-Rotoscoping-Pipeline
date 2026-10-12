@@ -1,0 +1,4 @@
+# Used by evaluation/run_depth_eval.py for benchmark sequences (data/bench_*).
+# The shot name is set per sequence with --set shot=bench_sintel_alley_1
+shot: bench_placeholder
+stages: [depth]
