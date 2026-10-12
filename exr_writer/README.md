@@ -19,10 +19,28 @@ python run_pipeline.py --config configs/tos_08_3a.yaml --stages exr
 
 **Header:** `z_mode`, `depth_note`, and the object stats `Z_min`, `Z_max`, `Z_mean`, `Z_p02`, `Z_p98`.
 
-**In Nuke:** Read node → the `depth.Z` / `Z` channel. Add a Premult node to cut out the object.
-**In Blender:** Image node → the Z output. Set alpha to "Straight".
+**Channel layout (`exr.layout`)**
+| Layout | Channel names | For |
+|---|---|---|
+| `standard` (default) | `R, G, B, A, Z` | Nuke (Read → `depth.Z`), Fusion, Resolve. The EXR convention |
+| `blender` | `ViewLayer.Combined.R/G/B/A`, `ViewLayer.Depth.Z` | Blender 4.x: Image node → **Depth** output |
+
+Tested with Blender 4.2.23 LTS: with plain `R,G,B,A,Z`, Blender shows only Image + Alpha (no Depth).
+With the `blender` layout, it shows a Depth output, and the values Blender reads are **identical**
+to what we wrote (max difference 0.0, `tos_01_2a` frame 50).
+
+```powershell
+python run_pipeline.py --config configs/tos_01_2a.yaml --stages exr --set exr.layout=blender
+python -m exr_writer.verify_blender data/tos_01_2a/exr/0050.exr     # needs tools/blender-4.2.23-windows-x64
+```
+Get portable Blender (no install): unzip `https://download.blender.org/release/Blender4.2/blender-4.2.23-windows-x64.zip` into `tools/`.
+
+In Nuke, add a Premult node to cut out the object. In Blender, set alpha to "Straight".
 
 **Speed:** 0.25–0.28 s/frame (ZIP compression), about 14 MB/frame at 1920×1012.
 
-**Status:** files verified with the OpenEXR library (5 channels, correct types, header present).
-Opening in Blender/Nuke is still to do (Phase 2 checkpoint).
+**Status:** verified with the OpenEXR library (5 channels, correct types, header) and in Blender 4.2
+(`blender` layout, exact depth values). Nuke is not installed here, so it hasn't been tested, but `standard` uses
+the plain `Z` channel name that Nuke maps to `depth.Z`.
+
+**4K (4096×2160):** 1.08 s/frame, about 60 MB/frame.

@@ -74,12 +74,23 @@ def edge_band_weight(alpha, band_px):
 
 
 def refine(depth, rgb, alpha, rc, device):
-    guide = np.concatenate([rgb.astype(np.float32), (alpha * 255 * rc["alpha_weight"])[..., None]], -1)
-    filt = depth
+    w = edge_band_weight(alpha, rc["band_px"])
+    ys, xs = np.nonzero(w)
+    if len(ys) == 0:
+        return depth
+    # only filter the box around the edge band (+ filter reach): at 4K this is much less work
+    m = (rc["diameter"] // 2) * rc["iterations"] + 1
+    y0, y1 = max(0, ys.min() - m), min(depth.shape[0], ys.max() + m + 1)
+    x0, x1 = max(0, xs.min() - m), min(depth.shape[1], xs.max() + m + 1)
+    guide = np.concatenate([rgb[y0:y1, x0:x1].astype(np.float32),
+                            (alpha[y0:y1, x0:x1] * 255 * rc["alpha_weight"])[..., None]], -1)
+    filt = depth[y0:y1, x0:x1]
     for _ in range(rc["iterations"]):
         filt = joint_bilateral(filt, guide, rc["diameter"] // 2, rc["sigma_space"], rc["sigma_color"], device)
-    w = edge_band_weight(alpha, rc["band_px"])
-    return (w * filt + (1 - w) * depth).astype(np.float32)
+    out = depth.copy()
+    wb = w[y0:y1, x0:x1]
+    out[y0:y1, x0:x1] = wb * filt + (1 - wb) * depth[y0:y1, x0:x1]
+    return out.astype(np.float32)
 
 
 def z_stats(values: np.ndarray, percentiles):

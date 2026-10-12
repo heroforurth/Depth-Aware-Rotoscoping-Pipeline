@@ -12,6 +12,7 @@ The original linear EXRs are kept in data/<shot>/source_exr/ so the EXR
 writer can later put the untouched linear RGB into the final file.
 
     python -m common.get_tears_of_steel --tos_shot 04_2b --start 300 --count 100
+    python -m common.get_tears_of_steel --tos_shot 08_3a --start 100 --count 30 --res 4k --shot_name tos_08_3a_4k
     python -m common.get_tears_of_steel --preview 01_2a 02_3a 04_2b   # one frame per shot, to choose shots
 """
 import argparse
@@ -65,11 +66,12 @@ def download(url: str, dst: Path, retries=3):
                 raise
 
 
-def src_url(tos_shot: str, frame: int) -> str:
-    return f"{BASE}/{tos_shot}/linear_hd/{tos_shot}_{frame:05d}.exr"
+def src_url(tos_shot: str, frame: int, res: str = "hd") -> str:
+    folder = "linear_hd" if res == "hd" else "linear"     # linear = original 4096x2160
+    return f"{BASE}/{tos_shot}/{folder}/{tos_shot}_{frame:05d}.exr"
 
 
-def make_shot(tos_shot, start, count, data_root="data", shot_name=None, exposure=None, workers=6):
+def make_shot(tos_shot, start, count, data_root="data", shot_name=None, exposure=None, workers=6, res="hd"):
     shot_name = shot_name or f"tos_{tos_shot}"
     paths = ShotPaths(Path(data_root) / shot_name)
     paths.make_dirs()
@@ -79,7 +81,7 @@ def make_shot(tos_shot, start, count, data_root="data", shot_name=None, exposure
     # 1) download in parallel (the server is slow per file, fast in parallel)
     jobs = {i: src_dir / frame_name(i, "exr") for i in range(1, count + 1)}
     with cf.ThreadPoolExecutor(workers) as ex:
-        futs = [ex.submit(download, src_url(tos_shot, start + i - 1), dst) for i, dst in jobs.items()]
+        futs = [ex.submit(download, src_url(tos_shot, start + i - 1, res), dst) for i, dst in jobs.items()]
         for n, fut in enumerate(cf.as_completed(futs), 1):
             fut.result()
             if n % 10 == 0 or n == count:
@@ -125,10 +127,11 @@ if __name__ == "__main__":
     ap.add_argument("--shot_name", help="default: tos_<tos_shot>")
     ap.add_argument("--data_root", default="data")
     ap.add_argument("--exposure", type=float, help="fixed gain; default = auto from middle frame")
+    ap.add_argument("--res", choices=["hd", "4k"], default="hd", help="hd = 1920x1012, 4k = 4096x2160")
     ap.add_argument("--preview", nargs="*", help="shots to preview (one frame each)")
     ap.add_argument("--preview_dir", default="data/_tos_preview")
     a = ap.parse_args()
     if a.preview:
         preview(a.preview, a.preview_dir)
     else:
-        make_shot(a.tos_shot, a.start, a.count, a.data_root, a.shot_name, a.exposure)
+        make_shot(a.tos_shot, a.start, a.count, a.data_root, a.shot_name, a.exposure, res=a.res)

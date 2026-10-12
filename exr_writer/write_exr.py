@@ -37,6 +37,12 @@ COMPRESSION = {
 }
 
 
+CHANNEL_NAMES = {
+    "standard": {c: c for c in "RGBAZ"},
+    "blender": {**{c: f"ViewLayer.Combined.{c}" for c in "RGBA"}, "Z": "ViewLayer.Depth.Z"},
+}
+
+
 def disparity_to_z(disp: np.ndarray, ec: dict) -> np.ndarray:
     """The ONE place where pipeline depth (larger = closer) becomes the EXR Z channel."""
     disp = np.asarray(disp, np.float32)
@@ -77,12 +83,15 @@ def write_one(path, rgb, alpha, z, ec, extra_header=None):
         "depth_note": "relative depth, not metric; A is not multiplied into Z",
     }
     header.update(extra_header or {})
+    # standard: R,G,B,A,Z  -> Nuke (depth.Z), Fusion, Resolve; the EXR convention, design decision 6
+    # blender:  Blender 4.x only shows a Depth output for multilayer names (tested, see README)
+    names = CHANNEL_NAMES[ec.get("layout", "standard")]
     channels = {
-        "R": rgb[..., 0].astype(np.float16),
-        "G": rgb[..., 1].astype(np.float16),
-        "B": rgb[..., 2].astype(np.float16),
-        "A": alpha.astype(np.float16),
-        "Z": z.astype(np.float32),
+        names["R"]: rgb[..., 0].astype(np.float16),
+        names["G"]: rgb[..., 1].astype(np.float16),
+        names["B"]: rgb[..., 2].astype(np.float16),
+        names["A"]: alpha.astype(np.float16),
+        names["Z"]: z.astype(np.float32),
     }
     with OpenEXR.File(header, channels) as f:
         f.write(str(path))

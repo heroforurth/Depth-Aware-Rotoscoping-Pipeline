@@ -64,6 +64,7 @@ All file I/O goes through [common/io.py](common/io.py). Frames are numbered from
 | `alignment/` | global / per-frame scale and shift | [README](alignment/README.md) |
 | `fusion/` | alpha-aware stats, edge-aware refinement | [README](fusion/README.md) |
 | `exr_writer/` | EXR output | [README](exr_writer/README.md) |
+| `demo/` | demo video from the EXRs | [make_demo.py](demo/make_demo.py) |
 | `evaluation/` | metrics, report | Phase 3 |
 
 ## Speed (RTX 5060 Laptop 8 GB, 1920×1012, 100 frames)
@@ -87,3 +88,20 @@ Shots in `configs/`: `tos_01_2a` (outdoor bridge), `tos_04_2d` (indoor, several 
 ## Licences of the models
 SAM 2.1, Video Depth Anything Small and Depth Anything V2 Small are Apache 2.0.
 **MatAnyone is NTU S-Lab License 1.0 (non-commercial).**
+
+## 4K (30 frames of `tos_08_3a_4k`, 4096×2160)
+| Stage | s/frame | GPU peak |
+|---|---|---|
+| SAM 2.1 Small | 0.22 | 0.7 GB |
+| MatAnyone (720 px) | 0.38 | 1.5 GB |
+| Video Depth Anything (model at ≤1080p, upsampled) | 0.51 | 7.5 GB |
+| Align | 0.17 | CPU |
+| Fuse (crop around the matte edge only) | 0.81 | 0.8 GB |
+| EXR write | 1.08 | CPU |
+| **Total** | **≈ 3.2** | |
+
+## Demo video
+```powershell
+python -m demo.make_demo data/tos_01_2a        # -> data/tos_01_2a/demo.mp4
+```
+2×2 panels: plate | matte | Z | a CG banner inserted *between* the actor and the background using only A + Z.

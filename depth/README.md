@@ -32,4 +32,9 @@ The proper TAE / flow-warping evaluation is in Phase 3. `tos_04_2d` has a moving
   The model input stays about 518 px, and only the upsampling cost grows.
 - "xFormers not available" is harmless: plain PyTorch attention is used.
 - Frames wider than 16:9 (1920×1012 is 1.9:1) get a slightly smaller input (490 px) inside VDA to save memory.
-- All frames of the shot are loaded into RAM (100 × 1080p ≈ 0.6 GB). Very long shots need chunking (Phase 2).
+- **Long shots:** VDA runs in chunks of `depth.chunk` (120) new frames with `depth.overlap` (16) shared frames.
+  Each chunk is scale-matched to the previous one on the shared frames, then **cross-faded**.
+  A hard switch gave a visible pop (5× normal frame-to-frame change). With the cross-fade, the biggest jump
+  equals normal motion, and the result differs from one-piece processing by only 0.4%.
+- **4K:** frames taller than `depth.max_height` (1080) are shrunk before the model and the depth is upsampled.
+  4096×2160: 0.51 s/frame, the same 7.5 GB peak as 1080p.

@@ -35,6 +35,9 @@ depth:                     # [B] -> depth_raw/
   input_size: 518          # model input short side; depth is upsampled back to frame size
   fp16: true
   out_subdir: depth_raw    # baseline runs can write to depth_raw_dav2 for comparison
+  max_height: 1080         # frames taller than this (4K) are shrunk before the model, depth upsampled back
+  chunk: 120               # VDA: new frames per chunk (RAM/VRAM stay flat for long shots)
+  overlap: 16              # VDA: frames shared with the previous chunk, used to match its scale
 
 align:                     # [B] depth_raw/ -> depth/
   # global    : one scale/shift for the whole shot (enough for Video Depth Anything)
@@ -63,6 +66,8 @@ exr:                       # [D] -> exr/
   z_near: 1.0              # z_mode=depth: closest part of the shot ~ this distance
   z_far: 10.0              #               farthest part ~ this distance (relative units, not metres)
   compression: zip         # zip | piz | none
+  layout: standard         # standard = R,G,B,A,Z (Nuke/Fusion/Resolve)
+                           # blender  = ViewLayer.Combined.RGBA + ViewLayer.Depth.Z (Blender 4.x needs this for Depth)
   linearize_rgb: true      # convert sRGB PNG -> linear for EXR (VFX convention)
   use_source_exr: true     # if data/<shot>/source_exr/ exists (Tears of Steel), copy its linear RGB
   premultiply: false       # false: RGB = full plate, A = matte (use Premult in Nuke)

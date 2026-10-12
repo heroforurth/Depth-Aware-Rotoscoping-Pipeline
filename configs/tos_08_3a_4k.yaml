@@ -1,0 +1,12 @@
+# 4K test: Tears of Steel shot 08_3a, ORIGINAL 4096x2160 frames 100-129 (CC-BY 3.0, Blender Foundation | mango.blender.org)
+# Same frames as tos_08_3a (HD), so 4K and HD results can be compared directly.
+# Frames made by: python -m common.get_tears_of_steel --tos_shot 08_3a --start 100 --count 30 --res 4k --shot_name tos_08_3a_4k
+shot: tos_08_3a_4k
+stages: [segment, matte, depth, align, fuse, exr]
+segmentation:
+  prompts:
+    - frame: 1
+      # same points as tos_08_3a, scaled by 4096/1920 = 2.1333
+      points: [[1451, 811], [1280, 469], [1195, 1664], [555, 1493], [576, 1877]]
+      labels: [1, 1, 1, 1, 1]
+      box: null

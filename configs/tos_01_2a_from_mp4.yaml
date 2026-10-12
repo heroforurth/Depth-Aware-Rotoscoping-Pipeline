@@ -1,0 +1,12 @@
+# Tears of Steel shot 01_2a, source frames 100-199 (CC-BY 3.0, Blender Foundation | mango.blender.org)
+# Outdoor, two actors on an Amsterdam bridge. Target: the woman (right), long depth range behind her.
+# Integration test: same shot, but starting from an H.264 .mp4 (Phase 2)
+shot: tos_01_2a_from_mp4
+input_video: videos/tos_01_2a.mp4
+stages: [extract, segment, matte, depth, align, fuse, exr]
+segmentation:
+  prompts:
+    - frame: 1
+      points: [[1240, 560], [1220, 260], [1250, 860]]   # torso, face, leg
+      labels: [1, 1, 1]
+      box: null
