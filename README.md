@@ -65,7 +65,7 @@ All file I/O goes through [common/io.py](common/io.py). Frames are numbered from
 | `fusion/` | alpha-aware stats, edge-aware refinement | [README](fusion/README.md) |
 | `exr_writer/` | EXR output | [README](exr_writer/README.md) |
 | `demo/` | demo video from the EXRs | [make_demo.py](demo/make_demo.py) |
-| `evaluation/` | metrics, report | Phase 3 |
+| `evaluation/` | metrics, benchmarks, result tables | [README](evaluation/README.md) |
 
 ## Speed (RTX 5060 Laptop 8 GB, 1920×1012, 100 frames)
 | Stage | s/frame | GPU peak |
@@ -105,3 +105,10 @@ SAM 2.1, Video Depth Anything Small and Depth Anything V2 Small are Apache 2.0.
 python -m demo.make_demo data/tos_01_2a        # -> data/tos_01_2a/demo.mp4
 ```
 2×2 panels: plate | matte | Z | a CG banner inserted *between* the actor and the background using only A + Z.
+
+## Results
+See [results/SUMMARY.md](results/SUMMARY.md). In short:
+- Video Depth Anything vs per-frame DA V2: **AbsRel 0.055 vs 0.104 on Bonn, 0.325 vs 0.390 on Sintel, 2–2.5× less flicker.**
+- Our `flow` alignment cuts the per-frame model's flicker by 23–35%.
+- Edge refinement moves the depth edge onto the matte edge (sharpness 0.59 → 0.95 on the outdoor shot).
+- Whole pipeline: 1.35 s/frame at 1080p, 3.2 s/frame at 4K on an 8 GB laptop GPU.
