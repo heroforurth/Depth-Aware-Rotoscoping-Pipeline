@@ -15,11 +15,11 @@ Needs Windows, Python 3.11, git and about 6 GB of disk. An NVIDIA GPU with 8 GB+
 without one, the CPU stages (align, fuse, exr, evaluation) still work.
 
 ```powershell
-git clone https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline.git C:\workoto
-cd C:\workoto
+git clone https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline.git C:\work\roto
+cd C:\work\roto
 powershell -ExecutionPolicy Bypass -File scripts/setup_env.ps1        # NVIDIA GPU
 powershell -ExecutionPolicy Bypass -File scripts/setup_env.ps1 -Cpu   # no NVIDIA GPU
-.venv\Scriptsctivate
+.venv\Scripts\activate
 ```
 The script makes `.venv/`, installs PyTorch 2.14 + `requirements.txt` (pinned), downloads the model code
 (pinned commits) and weights (~520 MB) and checks the imports.
@@ -28,7 +28,7 @@ Tested from a fresh environment: all modules import, all 4 models load, the CPU 
 Known setup problems:
 - `WinError 4551`: Windows **Smart App Control** blocks PyTorch/OpenEXR. Turn it off (Windows Security >
   App & browser control), or use WSL2 / Colab.
-- `WinError 206 ... filename too long`: the repo sits in too deep a folder. Clone into a short path like `C:\workoto`.
+- `WinError 206 ... filename too long`: the repo sits in too deep a folder. Clone into a short path like `C:\work\roto`.
 - Older NVIDIA driver that can't run CUDA 13: install torch from the matching index on pytorch.org
   (e.g. `cu128`), then run the script again. RTX 50-series needs CUDA 12.8 or newer.
 
