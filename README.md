@@ -11,13 +11,26 @@ alpha + depth + frames -> [C] stats + edge refinement    -> depth_final/, stats.
 ```
 
 ## Setup
+Needs Windows, Python 3.11, git and about 6 GB of disk. An NVIDIA GPU with 8 GB+ runs everything;
+without one, the CPU stages (align, fuse, exr, evaluation) still work.
+
 ```powershell
-pip install torch==2.14.0 torchvision==0.29.0 --index-url https://download.pytorch.org/whl/cu130
-pip install -r requirements.txt
-powershell -ExecutionPolicy Bypass -File scripts/setup_models.ps1   # model code (pinned) + weights, ~520 MB
+git clone https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline.git C:\workoto
+cd C:\workoto
+powershell -ExecutionPolicy Bypass -File scripts/setup_env.ps1        # NVIDIA GPU
+powershell -ExecutionPolicy Bypass -File scripts/setup_env.ps1 -Cpu   # no NVIDIA GPU
+.venv\Scriptsctivate
 ```
-On Windows 11, **Smart App Control must be off**, or it blocks the PyTorch and OpenEXR DLLs
-(`WinError 4551`). The alternative is WSL2 or Colab.
+The script makes `.venv/`, installs PyTorch 2.14 + `requirements.txt` (pinned), downloads the model code
+(pinned commits) and weights (~520 MB) and checks the imports.
+Tested from a fresh environment: all modules import, all 4 models load, the CPU pipeline runs.
+
+Known setup problems:
+- `WinError 4551`: Windows **Smart App Control** blocks PyTorch/OpenEXR. Turn it off (Windows Security >
+  App & browser control), or use WSL2 / Colab.
+- `WinError 206 ... filename too long`: the repo sits in too deep a folder. Clone into a short path like `C:\workoto`.
+- Older NVIDIA driver that can't run CUDA 13: install torch from the matching index on pytorch.org
+  (e.g. `cu128`), then run the script again. RTX 50-series needs CUDA 12.8 or newer.
 
 ## Data
 `data/` is not in git (about 5 GB per shot). See **[samples/README.md](samples/README.md)**: sample videos are in
