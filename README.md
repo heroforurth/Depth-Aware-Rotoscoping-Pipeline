@@ -19,6 +19,10 @@ powershell -ExecutionPolicy Bypass -File scripts/setup_models.ps1   # model code
 On Windows 11, **Smart App Control must be off**, or it blocks the PyTorch and OpenEXR DLLs
 (`WinError 4551`). The alternative is WSL2 or Colab.
 
+## Data
+`data/` is not in git (about 5 GB per shot). See **[samples/README.md](samples/README.md)**: sample videos are in
+`samples/videos/`, and ready-made masks, alpha and depth ("dev packs") are on the GitHub Release.
+
 ## Run
 ```powershell
 python run_pipeline.py --config configs/<shot>.yaml

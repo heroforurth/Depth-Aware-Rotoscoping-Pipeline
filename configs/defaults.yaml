@@ -42,7 +42,8 @@ depth:                     # [B] -> depth_raw/
 align:                     # [B] depth_raw/ -> depth/
   # global    : one scale/shift for the whole shot (enough for Video Depth Anything)
   # per_frame : first fit every frame to the shot median, then global (for flickering per-frame models)
-  # window    : like per_frame but the reference is the median of +-window/2 frames (camera moves)
+  # window    : like per_frame but the reference is the median of +-window/2 frames (slow camera moves)
+  # flow      : fit each frame to the previous one moved by optical flow (moving camera and people)
   mode: global
   window: 30
 
