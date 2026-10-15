@@ -5,6 +5,16 @@ Video in, multi-channel OpenEXR out: **R, G, B, A, Z** per frame
 
 > **New to the project? Start with [GETTING_STARTED.md](GETTING_STARTED.md)**: install, run, your task, and fixes for common errors, step by step.
 
+## For graders: where each rubric item is
+| Rubric item | Evidence |
+|---|---|
+| Task difficulty: video analysis | every model links frames; gain measured against no-temporal baselines: [results/SUMMARY.md §1](results/SUMMARY.md) |
+| Problem definition, data preparation, splits, leakage | [docs/DATA_AND_SPLITS.md](docs/DATA_AND_SPLITS.md) |
+| Model development, ≥ 3 approaches compared fairly | 5 segmentation/matting approaches, 4 depth approaches, 4 alignment modes: [results/SUMMARY.md §3](results/SUMMARY.md) |
+| Evaluation on held-out test sets, error analysis | [results/](results/) tables, [results/error_analysis.md](results/error_analysis.md) |
+| Presentation and Q&A | [docs/PRESENTATION_AND_QA.md](docs/PRESENTATION_AND_QA.md) |
+| Code, instructions, data sources, configuration | this README, [GETTING_STARTED.md](GETTING_STARTED.md), [samples/README.md](samples/README.md), `configs/` |
+
 ```
 frames/ -> [A] SAM 2 mask -> MatAnyone alpha            -> alpha/
 frames/ -> [B] Video Depth Anything -> scale/shift align -> depth/
