@@ -3,6 +3,8 @@
 Video in, multi-channel OpenEXR out: **R, G, B, A, Z** per frame
 (alpha matte of a chosen object + temporally consistent depth) for Nuke, Fusion and Blender.
 
+> **New to the project? Start with [GETTING_STARTED.md](GETTING_STARTED.md)**: install, run, your task, and fixes for common errors, step by step.
+
 ```
 frames/ -> [A] SAM 2 mask -> MatAnyone alpha            -> alpha/
 frames/ -> [B] Video Depth Anything -> scale/shift align -> depth/
