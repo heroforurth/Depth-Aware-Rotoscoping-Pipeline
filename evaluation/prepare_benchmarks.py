@@ -1,7 +1,8 @@
 """Turn depth benchmarks into normal pipeline shots, so the SAME depth code runs on them.
 
     python -m evaluation.prepare_benchmarks sintel     -> data/bench_sintel_<seq>/frames + gt_depth
-    python -m evaluation.prepare_benchmarks bonn       -> data/bench_bonn_<seq>/frames + gt_depth
+    python -m evaluation.prepare_benchmarks bonn       -> data/bench_bonn_<seq>/frames + gt_depth     (test)
+    python -m evaluation.prepare_benchmarks bonnval    -> data/bench_bonnval_<seq>/...                (validation)
 
 Ground truth goes to gt_depth/0001.npy (float32, metres, 0 = no measurement).
 
@@ -25,7 +26,8 @@ from common.io import ShotPaths, frame_name, write_rgb
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 DS = ROOT / "datasets"
-BONN_SEQS = ["balloon2", "crowd2", "crowd3", "person_tracking2", "synchronous"]
+BONN_SEQS = ["balloon2", "crowd2", "crowd3", "person_tracking2", "synchronous"]          # TEST
+BONN_VAL_SEQS = ["moving_nonobstructing_box", "balloon_tracking"]                       # VALIDATION only
 BONN_START, BONN_LEN = 30, 110
 
 
@@ -62,8 +64,8 @@ def prepare_sintel():
         print(f"sintel {seq}: {len(files)} frames")
 
 
-def prepare_bonn():
-    for seq in BONN_SEQS:
+def prepare_bonn(seqs=BONN_SEQS, prefix="bench_bonn"):
+    for seq in seqs:
         z = zipfile.ZipFile(DS / "bonn" / f"rgbd_bonn_{seq}.zip")
         base = f"rgbd_bonn_{seq}/"
 
@@ -73,7 +75,7 @@ def prepare_bonn():
 
         rgb, dep = listing("rgb.txt"), listing("depth.txt")
         dts = np.array([t for t, _ in dep])
-        paths = new_shot(f"bench_bonn_{seq}")
+        paths = new_shot(f"{prefix}_{seq}")
         for k, (t, f) in enumerate(rgb[BONN_START:BONN_START + BONN_LEN], 1):
             j = int(np.abs(dts - t).argmin())                        # nearest depth frame in time
             img = cv2.imdecode(np.frombuffer(z.read(base + f), np.uint8), cv2.IMREAD_COLOR)
@@ -84,4 +86,5 @@ def prepare_bonn():
 
 
 if __name__ == "__main__":
-    {"sintel": prepare_sintel, "bonn": prepare_bonn}[sys.argv[1]]()
+    {"sintel": prepare_sintel, "bonn": prepare_bonn,
+     "bonnval": lambda: prepare_bonn(BONN_VAL_SEQS, "bench_bonnval")}[sys.argv[1]]()

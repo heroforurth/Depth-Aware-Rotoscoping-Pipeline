@@ -109,6 +109,44 @@ def alpha_metrics(pred, gt):
     return {"MAD": float(mad), "MSE": float(mse), "dtSSD": float(dt)}
 
 
+# ---------------- segmentation (binary masks) ----------------
+def iou(pred, gt):
+    """Jaccard / IoU = |A and B| / |A or B|. Both empty = 1 (correctly found nothing)."""
+    pred, gt = np.asarray(pred, bool), np.asarray(gt, bool)
+    union = np.logical_or(pred, gt).sum()
+    return 1.0 if union == 0 else float(np.logical_and(pred, gt).sum() / union)
+
+
+def dice(pred, gt):
+    """Dice = 2 |A and B| / (|A| + |B|)."""
+    pred, gt = np.asarray(pred, bool), np.asarray(gt, bool)
+    total = pred.sum() + gt.sum()
+    return 1.0 if total == 0 else float(2 * np.logical_and(pred, gt).sum() / total)
+
+
+def _boundary(mask):
+    m = np.asarray(mask, np.uint8)
+    return (m - cv2.erode(m, np.ones((3, 3), np.uint8))) > 0
+
+
+def boundary_f(pred, gt, tol_frac=0.008):
+    """DAVIS boundary F-measure: how well the predicted OUTLINE matches the true outline.
+    A boundary pixel counts as correct if it lies within tol = 0.8% of the image diagonal
+    of the other outline. F = 2PR / (P + R)."""
+    bp, bg = _boundary(pred), _boundary(gt)
+    if bp.sum() == 0 and bg.sum() == 0:
+        return 1.0
+    if bp.sum() == 0 or bg.sum() == 0:
+        return 0.0
+    r = max(1, int(np.ceil(tol_frac * np.hypot(*bp.shape))))
+    disk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+    gt_near = cv2.dilate(bg.astype(np.uint8), disk) > 0
+    pred_near = cv2.dilate(bp.astype(np.uint8), disk) > 0
+    precision = (bp & gt_near).sum() / bp.sum()
+    recall = (bg & pred_near).sum() / bg.sum()
+    return 0.0 if precision + recall == 0 else float(2 * precision * recall / (precision + recall))
+
+
 # ---------------- edge sharpness ----------------
 def edge_sharpness(depth, alpha, near=3, far=12):
     """Depth step across the matte edge at `near` px divided by the step at `far` px."""

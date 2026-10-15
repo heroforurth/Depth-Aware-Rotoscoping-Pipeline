@@ -22,7 +22,7 @@ from common.io import frame_name, list_indices, read_rgb
 from evaluation.metrics import depth_accuracy, flow_pairs, opw_error
 
 ROOT = Path(__file__).resolve().parent.parent
-MAX_DEPTH = {"sintel": 70.0, "bonn": 10.0}
+MAX_DEPTH = {"sintel": 70.0, "bonn": 10.0, "bonnval": 10.0}
 
 
 def pipeline(shot, *sets):
@@ -80,16 +80,23 @@ def write_results(dataset, rows):
     models = list(dict.fromkeys(r["model"] for r in rows))
     lines = [f"## Depth on {dataset} ({len({r['sequence'] for r in rows})} sequences, "
              f"{sum(r['frames'] for r in rows if r['model'] == models[0])} frames)", "",
-             "| Model | AbsRel ↓ | δ1 ↑ | OPW (flicker) ↓ |", "|---|---|---|---|"]
+             "| Model | AbsRel ↓ | median AbsRel ↓ | δ1 ↑ | OPW (flicker) ↓ | sequences with less flicker than dav2 |",
+             "|---|---|---|---|---|---|"]
+    base = {r["sequence"]: r["opw"] for r in rows if r["model"] == "dav2"}
     for m in models:
         rs = [r for r in rows if r["model"] == m]
         # frame-weighted mean over sequences
         wts = np.array([r["frames"] for r in rs], float)
         mean = lambda k: float(np.average([r[k] for r in rs], weights=wts))
-        lines.append(f"| {m} | {mean('abs_rel'):.4f} | {mean('delta1'):.4f} | {mean('opw'):.4f} |")
+        med = float(np.median([r["abs_rel"] for r in rs]))
+        calmer = sum(r["opw"] < base.get(r["sequence"], -1) for r in rs) if m != "dav2" else "—"
+        lines.append(f"| {m} | {mean('abs_rel'):.4f} | {med:.4f} | {mean('delta1'):.4f} | {mean('opw'):.4f} | "
+                     f"{calmer}{'' if m == 'dav2' else f' / {len(rs)}'} |")
     lines += ["", "AbsRel/δ1: one scale + shift per sequence fitted in disparity space against ground truth.",
               "OPW: optical-flow warping error on depth normalised to [0, 1] per sequence (lower = less flicker).",
-              "+flow-align: our alignment module in `flow` mode applied to that model's output.", ""]
+              "+flow-align: our alignment module in `flow` mode applied to that model's output.",
+              "AbsRel mean is frame-weighted over sequences; the median over sequences shows how much a few hard",
+              "sequences pull the mean (see results/error_analysis.md).", ""]
     (out / f"depth_{dataset}.md").write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(lines))
 
@@ -97,4 +104,13 @@ def write_results(dataset, rows):
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")   # Windows console cannot print arrows otherwise
     ds = sys.argv[1]
-    write_results(ds, evaluate(ds, rerun="--rerun" in sys.argv))
+    if "--from-csv" in sys.argv:          # rebuild the table from saved numbers, no model runs
+        rows = list(csv.DictReader(open(ROOT / "results" / f"depth_{ds}.csv", encoding="utf-8")))
+        for r in rows:
+            for k in ("frames",):
+                r[k] = int(r[k])
+            for k in ("abs_rel", "delta1", "opw"):
+                r[k] = float(r[k])
+        write_results(ds, rows)
+    else:
+        write_results(ds, evaluate(ds, rerun="--rerun" in sys.argv))
