@@ -1,6 +1,6 @@
 # outputs and inputs are big: keep them out of git
 data/
-videos/
+/videos/
 checkpoints/
 third_party/
 *.exr
