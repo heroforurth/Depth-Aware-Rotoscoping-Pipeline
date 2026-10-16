@@ -13,9 +13,9 @@ An NVIDIA GPU (8 GB+) runs everything; without one, the demo uses the CPU parts 
 
 **1. Get the project.** Open PowerShell (Start → type `PowerShell`), paste this, press Enter:
 ```powershell
-git clone -b depth-aware-rotoscoping-pipeline https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline.git C:\work\roto; explorer C:\work\roto
+git clone https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline.git
+cd Depth-Aware-Rotoscoping-Pipeline
 ```
-A folder window opens. Keep the short path `C:\work\roto`: long paths break the install on Windows.
 
 **2. Double-click `setup.bat`.** It installs Python 3.11 if you don't have it, builds the project's
 own environment (`.venv`), installs PyTorch (GPU or CPU build, detected automatically) and the
@@ -76,7 +76,7 @@ Every output goes to `data/<shot>/<stage folder>/`. Each module folder has a sho
 
 ## Run it on your own video
 
-1. Put the video in `C:\work\roto\videos\` (make the folder). 4–5 seconds is enough. This folder is
+1. Put the video in `\videos\` (make the folder). 4–5 seconds is enough. This folder is
    never uploaded to GitHub, so private clips stay private.
 2. Copy the example settings: `copy configs\example_shot.yaml configs\my_shot.yaml`, open it
    (Notepad or VS Code) and change two lines:
@@ -86,7 +86,7 @@ Every output goes to `data/<shot>/<stage folder>/`. Each module folder has a sho
    ```
 3. Open PowerShell in the project folder and switch on the environment:
    ```powershell
-   cd C:\work\roto
+   cd Depth-Aware-Rotoscoping-Pipeline
    .venv\Scripts\activate
    ```
    You see `(.venv)` at the start of the line. Do this every time you open a new PowerShell.
@@ -135,7 +135,7 @@ The big data is not in git (one shot with all outputs is about 5 GB). Pick what 
 | You work on | You need | How |
 |---|---|---|
 | anything, with an NVIDIA GPU | input videos | already here: `samples/videos/*.mp4` (3 film shots, 100 frames each) |
-| alignment, fusion, EXR, evaluation, no big GPU | ready-made masks, alpha and depth | **dev packs** on the [Releases page](https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline/releases/tag/data-v1): download a zip, unzip it into `C:\work\roto` (it creates `data\<shot>\`) |
+| alignment, fusion, EXR, evaluation, no big GPU | ready-made masks, alpha and depth | **dev packs** on the [Releases page](https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline/releases/tag/data-v1): download a zip, unzip it into Project Folder (it creates `data\<shot>\`) |
 | quick code tests, any computer | a small fake shot with true depth | `python -m common.make_dummy_shot --shot dummy` |
 | the original 16-bit camera frames, more shots, 4K | Tears of Steel raw footage | `python -m common.get_tears_of_steel --tos_shot 01_2a --start 100 --count 100` (add `--res 4k` for 4K) |
 | evaluation datasets | Bonn, DAVIS, Sintel, YouTubeMatte | `python scripts/get_datasets.py bonn davis sintel youtubematte` |
@@ -153,7 +153,7 @@ python run_pipeline.py --config configs/tos_08_3a.yaml --stages align fuse exr
 
 ## Commands (by hand)
 
-Always first: `cd C:\work\roto` and `.venv\Scripts\activate`.
+Always first: `cd Depth-Aware-Rotoscoping-Pipeline` and `.venv\Scripts\activate`.
 
 ```powershell
 # whole pipeline from a video (configs/*_from_mp4.yaml start from samples/videos)
@@ -263,9 +263,9 @@ samples/videos/        3 sample film shots (in git)
 |---|---|---|
 | `git is not recognized` | Git not installed | Install [Git](https://git-scm.com/download/win), open a new PowerShell |
 | `python is not recognized` / setup can't find Python | Python missing | `setup.bat` installs it with winget; if that fails, install Python 3.11 from python.org, tick **Add python.exe to PATH** |
-| `No module named ...` | environment not switched on | `cd C:\work\roto` then `.venv\Scripts\activate` |
+| `No module named ...` | environment not switched on | `cd Depth-Aware-Rotoscoping-Pipeline` then `.venv\Scripts\activate` |
 | `WinError 4551 ... Application Control policy` | Windows Smart App Control blocks PyTorch | Windows Security → App & browser control → Smart App Control → **Off**, restart, run `setup.bat` again |
-| `WinError 206 ... filename too long` | folder path too long | clone into `C:\work\roto` |
+| `WinError 206 ... filename too long` | folder path too long | clone into your folder first |
 | setup stops halfway (internet) | download interrupted | double-click `setup.bat` again: it continues |
 | `CUDA out of memory` | GPU memory full | close games, browsers and other GPU apps; try `--set matting.max_size=540` |
 | `no CUDA GPU found, running on CPU` | no NVIDIA GPU, or CPU install | fine for align / fuse / exr; the AI stages are very slow |
