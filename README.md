@@ -40,12 +40,13 @@ That's it. If something goes wrong, see [When something goes wrong](#when-someth
 5. [Commands (by hand)](#commands-by-hand)
 6. [Team tasks](#team-tasks)
 7. [Share your work with Git](#share-your-work-with-git)
-8. [When something goes wrong](#when-something-goes-wrong)
-9. [How it works](#how-it-works)
-10. [Results](#results)
-11. [For graders](#for-graders)
-12. [Licences and credits](#licences-and-credits)
-13. [Words you will see](#words-you-will-see)
+8. [Editing the project](#editing-the-project)
+9. [When something goes wrong](#when-something-goes-wrong)
+10. [How it works](#how-it-works)
+11. [Results](#results)
+12. [For graders](#for-graders)
+13. [Licences and credits](#licences-and-credits)
+14. [Words you will see](#words-you-will-see)
 
 ---
 
@@ -208,6 +209,51 @@ git push -u origin role6-fusion-yourname
 ```
 GitHub then shows **Compare & pull request**: click it, describe the change, ask for a review.
 `data/`, `results/`, `videos/`, `checkpoints/`, `.venv/` are ignored by git on purpose.
+
+---
+
+## Editing the project
+
+**Before every commit:** `python scripts/self_test.py` (30 s, no GPU). It checks the configs, imports,
+metrics and the CPU pipeline, and must end with **All good.**
+
+**Where to change what:**
+
+| I want to… | Edit | Notes |
+|---|---|---|
+| change a setting (filter strength, matting size, depth model, …) | `configs/defaults.yaml` | every setting has a comment; a shot config only overrides what differs |
+| try a setting once, without editing files | `--set key=value` on `run_pipeline.py` | e.g. `--set fusion.refine.sigma_color=10` |
+| add a new shot | copy `configs/example_shot.yaml` | clicks with `python -m common.pick_points` |
+| change how a stage works | that stage's folder (`segmentation/`, `matting/`, `depth/`, `alignment/`, `fusion/`, `exr_writer/`) | each has one `run(cfg, paths)` function and a short README |
+| add a new stage | new folder with `run(cfg, paths)`, then one line in `STAGES` in `run_pipeline.py` | read inputs and write outputs only through `common/io.py` |
+| change file names, formats or folders | `common/io.py` (and `common/validate.py`) | this is the interface contract: every stage depends on it |
+| add a metric | `evaluation/metrics.py` | then use it in an `evaluation/run_*.py` script |
+| add or re-run an experiment | `evaluation/run_*.py` → writes `results/` | copy a table to `reference_results/` only when the team agrees it's the new reference |
+| change setup or pinned versions | `requirements.txt`, `scripts/setup_env.ps1`, `scripts/setup_models.ps1` | don't upgrade PyTorch/CUDA without asking the team leader |
+
+**Project rules:**
+- Files between stages follow the interface contract (`data/<shot>/<stage>/0001.png|.npy|.exr`).
+- Settings live in configs, never hard-coded.
+- Never multiply Z by alpha.
+- Depth is converted to Z only in the EXR writer.
+
+All rules: "Design decisions" in [CLAUDE.md](CLAUDE.md).
+
+**Folder map:**
+```
+run_pipeline.py        one command for the whole pipeline (lists the stages)
+setup.bat  run_demo.bat  reproduce_results.bat     double-click entry points
+configs/               settings: defaults.yaml + one file per shot
+common/                shared code: file I/O (the contract), config, frames, validator, previews, tools
+segmentation/  matting/  depth/  alignment/  fusion/  exr_writer/     one folder per stage
+demo/                  demo video from the EXR files
+evaluation/            metrics, benchmarks, error analysis
+scripts/               setup, datasets, reproduce, compare, self-test, dev packs
+reference_results/     the numbers in the report (in git)
+docs/                  data & splits, presentation & Q&A
+samples/videos/        3 sample film shots (in git)
+-- not in git: data/ results/ datasets/ checkpoints/ third_party/ .venv/ tools/ videos/
+```
 
 ---
 

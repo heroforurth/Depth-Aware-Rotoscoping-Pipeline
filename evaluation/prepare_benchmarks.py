@@ -13,7 +13,6 @@ Bonn RGB-D Dynamic (real Kinect footage of people moving; 5 sequences, 110-frame
   starting at frame 30, max depth 10 m). Depth PNGs are 16-bit, value / 5000 = metres (TUM format).
   datasets/bonn/rgbd_bonn_<seq>.zip
 """
-import io
 import sys
 import zipfile
 from pathlib import Path
@@ -21,7 +20,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from common.io import ShotPaths, frame_name, write_rgb
+from common.io import ShotPaths, frame_name
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"

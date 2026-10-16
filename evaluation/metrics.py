@@ -1,4 +1,4 @@
-"""Evaluation metrics (Phase 3). Plain numpy/OpenCV so anyone can read them.
+"""Evaluation metrics. Plain numpy/OpenCV so anyone can read them.
 
 DEPTH ACCURACY (needs ground truth, e.g. Sintel, Bonn)
   Models give relative disparity. Standard protocol (Depth Anything / Video Depth
@@ -84,18 +84,6 @@ def opw_error(depth_frames, pairs, sc):
         if m.any():
             errs.append(np.abs(a[m] - bw[m]).mean())
     return float(np.mean(errs))
-
-
-def static_std(depth_frames, rgb_frames, alpha_frames=None, rgb_thr=2.0):
-    """Std over time of depth on pixels whose colour barely changes (static camera only)."""
-    d = np.stack(depth_frames).astype(np.float32)
-    lo, hi = np.percentile(d[:, ::4, ::4], [2, 98])
-    d = (d - lo) / max(hi - lo, 1e-6)
-    g = np.stack([cv2.cvtColor(f, cv2.COLOR_RGB2GRAY).astype(np.float32) for f in rgb_frames])
-    static = g.std(0) < rgb_thr
-    if alpha_frames is not None:
-        static &= (np.stack(alpha_frames) < 0.05).all(0)
-    return (float(d[:, static].std(0).mean()) if static.any() else None), float(static.mean())
 
 
 # ---------------- alpha ----------------

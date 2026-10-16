@@ -1,4 +1,4 @@
-"""Evaluation on our own Tears of Steel shots (Phase 3). Writes results/*.md + .csv.
+"""Evaluation on our own Tears of Steel shots. Writes results/*.md + .csv.
 
     python -m evaluation.greenscreen_key data/tos_08_3a      # once: reference alpha
     python -m evaluation.run_shot_eval
