@@ -22,7 +22,7 @@ own environment (`.venv`), installs PyTorch (GPU or CPU build, detected automati
 libraries, and downloads the AI models. 10–30 minutes, once. It ends with **SETUP DONE**.
 
 **3. Double-click `run_demo.bat`.** With a GPU it runs the whole pipeline on a sample film shot
-(about 2 minutes) and opens the demo video. Without a GPU it runs the CPU stages on a synthetic shot.
+(about 3 minutes) and opens the demo video. Without a GPU it runs the CPU stages on a synthetic shot.
 
 That's it. If something goes wrong, see [When something goes wrong](#when-something-goes-wrong).
 

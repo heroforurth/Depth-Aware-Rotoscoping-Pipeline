@@ -1,6 +1,6 @@
 """What run_demo.bat runs: prove the pipeline works on this computer, then open the result.
 
-With an NVIDIA GPU: the full pipeline on samples/videos/tos_01_2a.mp4 (video -> EXR, ~2 min),
+With an NVIDIA GPU: the full pipeline on samples/videos/tos_01_2a.mp4 (video -> EXR, ~3 min),
 then the demo video (plate | matte | depth | CG banner inserted behind the actor).
 Without a GPU: the CPU stages on the synthetic shot, and on a dev pack if you unzipped one.
 """
@@ -41,7 +41,7 @@ def open_file(path):
 
 def main():
     if has_gpu():
-        print("NVIDIA GPU found: running the full pipeline on a sample film shot (about 2 minutes).")
+        print("NVIDIA GPU found: running the full pipeline on a sample film shot (about 3 minutes).")
         run("run_pipeline.py", "--config", "configs/tos_01_2a_from_mp4.yaml")
         run("-m", "common.validate", "data/tos_01_2a_from_mp4")
         run("-m", "demo.make_demo", "data/tos_01_2a_from_mp4")
