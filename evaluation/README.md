@@ -1,6 +1,6 @@
 # Evaluation (Phase 3)
 
-All result tables are written to [results/](../results/) as `.md` (for the report) and `.csv` (for plots).
+Re-runs write their tables to `results/` (not in git). The numbers in the report are in [reference_results/](../reference_results/); compare the two with `python scripts/compare_results.py`.
 
 ## How to reproduce
 ```powershell

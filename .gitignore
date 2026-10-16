@@ -16,3 +16,6 @@ __pycache__/
 tools/
 datasets/
 release_packs/
+
+# re-run outputs go here; compare with reference_results/ (python scripts/compare_results.py)
+/results/

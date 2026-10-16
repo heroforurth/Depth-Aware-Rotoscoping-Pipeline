@@ -37,7 +37,7 @@ Answer in 2–3 sentences: the fact, the number, the reason.
 **Q: Why is this "video analysis" and not just image segmentation per frame?**
 A: All three models link frames: SAM 2 keeps a memory of earlier frames, MatAnyone propagates memory,
 and Video Depth Anything uses temporal attention over 32 frames. We measured the benefit: copying the
-first mask (no temporal model) scores far lower J than SAM 2 (see results/seg_davis.md), and per-frame
+first mask (no temporal model) scores far lower J than SAM 2 (see reference_results/seg_davis.md), and per-frame
 depth flickers more than video depth on 23 of 23 Sintel and 5 of 5 Bonn sequences.
 
 **Q: You didn't train any model. What did you develop?**
@@ -91,7 +91,7 @@ For depth, the video model flickers less than per-frame depth on all 28 test seq
 **Q: Where does your pipeline fail?**
 A: An object made of separate parts when clicks cover only one part (two people as one object: J 0.38;
 with a full first mask the same clip scores 0.99), objects that are tiny in the first frame, thin lines,
-smoke and fog (depth). See results/error_analysis.md.
+smoke and fog (depth). See reference_results/error_analysis.md.
 
 **Q: Your first alignment method failed. What happened?**
 A: It fitted every frame to the shot's median depth, which assumes a static camera. On Bonn's moving
@@ -112,5 +112,6 @@ model and the depth is upsampled, because the model sees about 518 px anyway.
 **Q: Does the EXR really work in compositing software?** Yes: Blender 4.2 reads our Z exactly
 (difference 0.0). Nuke uses the standard `Z` channel name; it was not tested on Nuke.
 
-**Q: Can someone else run it?** Yes: `scripts/setup_env.ps1`, then one command per shot;
-GETTING_STARTED.md is a step-by-step guide, and the data packs are on the GitHub release.
+**Q: Can someone else run it?** Yes: clone, double-click `setup.bat`, double-click `run_demo.bat`.
+`reproduce_results.bat` re-runs the evaluation and compares the numbers with ours; the README is a
+step-by-step guide, and the data packs are on the GitHub release.
