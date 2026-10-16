@@ -11,7 +11,7 @@ function Step($t) { Write-Host ""; Write-Host "== $t" -ForegroundColor Cyan }
 
 # Windows' 260-character path limit breaks some packages (hydra) in deep folders
 if ($root.Length -gt 80) {
-    Write-Warning "This folder path is $($root.Length) characters long. If the install fails with 'filename too long', move the project to a short folder such as C:\work\roto."
+    Write-Warning "This folder path is $($root.Length) characters long. If the install fails with 'filename too long'."
 }
 
 Step "1/5 Finding Python 3.11"

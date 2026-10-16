@@ -76,9 +76,9 @@ Every output goes to `data/<shot>/<stage folder>/`. Each module folder has a sho
 
 ## Run it on your own video
 
-1. Put the video in `\videos\` (make the folder). 4–5 seconds is enough. This folder is
+1. Put the video in `videos/` (make the folder). 4–5 seconds is enough. This folder is
    never uploaded to GitHub, so private clips stay private.
-2. Copy the example settings: `copy configs\example_shot.yaml configs\my_shot.yaml`, open it
+2. Copy the example settings: `cp configs/example_shot.yaml configs/my_shot.yaml`, open it
    (Notepad or VS Code) and change two lines:
    ```yaml
    shot: my_shot
@@ -100,12 +100,12 @@ Every output goes to `data/<shot>/<stage folder>/`. Each module folder has a sho
    ```
    Left click = on the object (3–5 clicks: face, body, legs). **If the object has separate parts
    (two people), click on every part.** Right click = something that is NOT the object. `u` undoes,
-   `q` finishes. Paste the printed `segmentation:` block into `configs\my_shot.yaml`.
+   `q` finishes. Paste the printed `segmentation:` block into `configs/my_shot.yaml`.
 6. Run the rest, and look at the result:
    ```powershell
    python run_pipeline.py --config configs/my_shot.yaml --stages segment matte depth align fuse exr
-   python -m common.preview data/my_shot mask        # -> data\my_shot\_preview\mask.jpg
-   python -m demo.make_demo data/my_shot             # -> data\my_shot\demo.mp4
+   python -m common.preview data/my_shot mask        # -> data/my_shot/_preview/mask.jpg
+   python -m demo.make_demo data/my_shot             # -> data/my_shot/demo.mp4
    ```
    If the green mask misses a part, add a click there (step 5) and run step 6 again.
 
@@ -135,7 +135,7 @@ The big data is not in git (one shot with all outputs is about 5 GB). Pick what 
 | You work on | You need | How |
 |---|---|---|
 | anything, with an NVIDIA GPU | input videos | already here: `samples/videos/*.mp4` (3 film shots, 100 frames each) |
-| alignment, fusion, EXR, evaluation, no big GPU | ready-made masks, alpha and depth | **dev packs** on the [Releases page](https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline/releases/tag/data-v1): download a zip, unzip it into Project Folder (it creates `data\<shot>\`) |
+| alignment, fusion, EXR, evaluation, no big GPU | ready-made masks, alpha and depth | **dev packs** on the [Releases page](https://github.com/heroforurth/Depth-Aware-Rotoscoping-Pipeline/releases/tag/data-v1): download a zip, unzip it into Project Folder (it creates `data/<shot>/`) |
 | quick code tests, any computer | a small fake shot with true depth | `python -m common.make_dummy_shot --shot dummy` |
 | the original 16-bit camera frames, more shots, 4K | Tears of Steel raw footage | `python -m common.get_tears_of_steel --tos_shot 01_2a --start 100 --count 100` (add `--res 4k` for 4K) |
 | evaluation datasets | Bonn, DAVIS, Sintel, YouTubeMatte | `python scripts/get_datasets.py bonn davis sintel youtubematte` |
