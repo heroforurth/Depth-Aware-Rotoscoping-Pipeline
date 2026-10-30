@@ -85,6 +85,11 @@ Details above came from search snippets; verify dataset sizes, licences and chec
 - Use dummy alpha and depth arrays to test code that depends on another module.
 - Keep results reproducible: seeds, config files, and logged timings.
 - Explain code simply; the team has mixed skill levels.
+- Git: never commit or push to `main`. Work on `depth-aware-rotoscoping-pipeline` (or a branch off it); the team leader merges into `main` by pull request.
+- Run `python scripts/self_test.py` before every commit; it must end with "All good."
+- Evaluation scripts write to `results/` (git-ignored). `reference_results/` holds the numbers in the report; only replace a file there when the team agrees, and check with `python scripts/compare_results.py`.
+- The README is the one user guide (quick start, data, commands, troubleshooting, editing map). Keep it in sync when commands change; module READMEs are short technical notes.
+- Entry points for non-programmers: `setup.bat`, `run_demo.bat`, `reproduce_results.bat`. Test them on a fresh clone in a short path (e.g. `C:\work\...`) after changing setup.
 
 ## Environment notes (dev laptop)
 - GPU: RTX 5060 Laptop, 8 GB VRAM (Blackwell, needs CUDA 12.8+ builds). Python 3.11.9, torch 2.14.0+cu130.

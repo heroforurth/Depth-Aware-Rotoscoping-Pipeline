@@ -48,7 +48,7 @@ parameters and the default alignment mode (`global`) were chosen on development 
 **One honest exception.** The `flow` alignment mode was designed after the first `per_frame` mode
 performed badly on Bonn test sequences. To make sure that design choice does not depend on test data,
 we re-checked it on the two Bonn **validation** sequences, which no decision had used
-(results: `results/depth_bonn_val.md`).
+(results: `reference_results/depth_bonnval.md`).
 
 ## Do the pretrained models already know our test sets?
 | Model | Trained on (from its paper) | Our test sets | Overlap? |

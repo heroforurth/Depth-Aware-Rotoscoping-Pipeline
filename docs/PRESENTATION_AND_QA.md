@@ -8,23 +8,26 @@ The slide order follows the grading rubric, so the examiner can tick each item a
 
 | # | Slide | Rubric item it covers | Presenter (role) | Time (of 15 min) |
 |---|---|---|---|---|
-| 1 | Title | — | 1 Data/infra | 0:20 |
-| 2 | Problem: a matte says what, depth says where | Problem definition | 1 Data/infra | 1:00 |
-| 3 | Task type: video analysis (frames linked) | Task difficulty (4 pts) | 8 Evaluation | 1:00 |
-| 4 | Deliverable: R, G, B, A, Z EXR | Problem definition | 7 EXR | 0:40 |
-| 5 | Pipeline overview | Model development | 1 Data/infra | 1:00 |
-| 6 | Data and splits (dev / validation / test, leakage) | Data preparation | 1 Data/infra | 1:20 |
-| 7 | Segmentation: SAM 2 + MatAnyone, examples | Model development | 2 SAM 2 + 3 Matting | 1:00 |
-| 8 | Segmentation results vs ground truth (5 approaches) | Experiments + evaluation | 2 SAM 2 | 1:20 |
-| 9 | Matting results (true alpha) | Experiments + evaluation | 3 Matting | 1:00 |
-| 10 | Depth results (4 approaches, Bonn + Sintel) | Experiments + evaluation | 4 Depth | 1:20 |
-| 11 | Alignment: the failure and the fix | Experiments | 5 Alignment | 1:00 |
-| 12 | Edge refinement | Experiments | 6 Fusion | 0:50 |
-| 13 | Error analysis: best and worst cases | Result analysis | 8 Evaluation | 1:20 |
-| 14 | Speed and 4K | Evaluation | 7 EXR | 0:40 |
-| 15 | Demo (play demo.mp4) | — | 7 EXR | 0:40 |
-| 16 | Limitations and next steps | Result analysis | 8 Evaluation | 0:40 |
-|  | **Total** | | | **~15:30** |
+| 1 | Title | — | 1 Data/infra | 0:15 |
+| 2 | How this talk is organised, and who presents | Presentation (order, roles) | 1 Data/infra | 0:30 |
+| 3 | Problem: a matte says what, depth says where | Problem definition | 1 Data/infra | 0:50 |
+| 4 | Task type: video analysis (frames linked) | Task difficulty (4 pts) | 8 Evaluation | 1:00 |
+| 5 | Deliverable: R, G, B, A, Z EXR | Problem definition | 7 EXR | 0:40 |
+| 6 | Pipeline overview | Model development | 1 Data/infra | 0:50 |
+| 7 | Data and splits (dev / validation / test, leakage) | Data preparation | 1 Data/infra | 1:10 |
+| 8 | Segmentation: SAM 2 + MatAnyone, examples | Model development | 2 SAM 2 + 3 Matting | 0:50 |
+| 9 | Segmentation results vs ground truth (5 approaches) | Experiments + evaluation | 2 SAM 2 | 1:10 |
+| 10 | Matting results (true alpha) | Experiments + evaluation | 3 Matting | 1:00 |
+| 11 | Depth results (4 approaches, Bonn + Sintel) | Experiments + evaluation | 4 Depth | 1:10 |
+| 12 | Alignment: the failure and the fix | Experiments | 5 Alignment | 0:50 |
+| 13 | Edge refinement | Experiments | 6 Fusion | 0:40 |
+| 14 | Error analysis: best and worst cases | Result analysis | 8 Evaluation | 1:10 |
+| 15 | Speed and 4K | Evaluation | 7 EXR | 0:30 |
+| 16 | Demo (play demo.mp4) | — | 7 EXR | 0:40 |
+| 17 | Limitations and next steps | Result analysis | 8 Evaluation | 0:40 |
+|  | **Total** | | | **~15:15** |
+
+Fill the `[Name]` placeholders on slide 2 with who presents each part.
 
 Rules: each person says their role in one sentence before their slide ("I worked on the alignment
 module, which..."). Do not read the slide: say the one finding, point at the number, move on.
@@ -37,7 +40,7 @@ Answer in 2–3 sentences: the fact, the number, the reason.
 **Q: Why is this "video analysis" and not just image segmentation per frame?**
 A: All three models link frames: SAM 2 keeps a memory of earlier frames, MatAnyone propagates memory,
 and Video Depth Anything uses temporal attention over 32 frames. We measured the benefit: copying the
-first mask (no temporal model) scores far lower J than SAM 2 (see results/seg_davis.md), and per-frame
+first mask (no temporal model) scores far lower J than SAM 2 (see reference_results/seg_davis.md), and per-frame
 depth flickers more than video depth on 23 of 23 Sintel and 5 of 5 Bonn sequences.
 
 **Q: You didn't train any model. What did you develop?**
@@ -91,7 +94,7 @@ For depth, the video model flickers less than per-frame depth on all 28 test seq
 **Q: Where does your pipeline fail?**
 A: An object made of separate parts when clicks cover only one part (two people as one object: J 0.38;
 with a full first mask the same clip scores 0.99), objects that are tiny in the first frame, thin lines,
-smoke and fog (depth). See results/error_analysis.md.
+smoke and fog (depth). See reference_results/error_analysis.md.
 
 **Q: Your first alignment method failed. What happened?**
 A: It fitted every frame to the shot's median depth, which assumes a static camera. On Bonn's moving
@@ -112,5 +115,6 @@ model and the depth is upsampled, because the model sees about 518 px anyway.
 **Q: Does the EXR really work in compositing software?** Yes: Blender 4.2 reads our Z exactly
 (difference 0.0). Nuke uses the standard `Z` channel name; it was not tested on Nuke.
 
-**Q: Can someone else run it?** Yes: `scripts/setup_env.ps1`, then one command per shot;
-GETTING_STARTED.md is a step-by-step guide, and the data packs are on the GitHub release.
+**Q: Can someone else run it?** Yes: clone, double-click `setup.bat`, double-click `run_demo.bat`.
+`reproduce_results.bat` re-runs the evaluation and compares the numbers with ours; the README is a
+step-by-step guide, and the data packs are on the GitHub release.
